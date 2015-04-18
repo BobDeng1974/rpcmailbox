@@ -35,14 +35,14 @@ static int mailboxl = 0;
 
 
 
-int index_of_user(str * s)
+int index_of_user(str * username)
 {
 	int i;
 	for (i = 0; i < usersl; i++)
 	{
 		//printf("is %s == %s\n", *s, users[i]);
 
-		if (strcmp(*s, users[i]) == 0)
+		if (strcmp(*username, users[i]) == 0)
 		{
 			return i;
 		}
@@ -62,23 +62,19 @@ message make_message(str * s, int msgid, str * user)
 int add_to_mailbox(message * m)
 {
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
-	
+
+	// Make space for new message	
 	if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
-		//print_mailbox();
 	}
 	else
 	{
-		//message * temp = calloc(1, sizeof(message));
-		//mailbox[mailboxl] = *temp;
-		
 		mailbox[mailboxl] = (message*) calloc(1, sizeof(message));
-
 	}
-	
+
+	// Add new message	
 	mailbox[mailboxl++] = m;
-	//mailboxl++;	
 
 	printf(" .. successfully added message '%.25s'(cntd)\n", mailbox[mailboxl-1]->msg);
 	return 1;
@@ -96,75 +92,106 @@ int mailboxpop()
 }
 
 /* Adds `*s` to the end of the user list and increments the usersl (length)*/
-int add_to_users(str * s)
+int add_to_users(str * username)
 {
 	printf("Trying to add a user now");	
-	if (index_of_user(s) == -1)
+	if (index_of_user(username) == -1)
 	{
+		// make space, add the username in, and increment length of users
 		users[usersl] = calloc(1, sizeof(char*));
-		users[usersl++] = *s;
+		users[usersl++] = *username;
 		
-		printf(". Successfully adding user '%s'\n", *s);
+		printf(". Successfully adding user '%s'\n", *username);
 		return 1;	
 	}
 	else 
 	{
-		printf(" but user '%s' already exists .. didn't add user\n", *s);
+		printf(" but user '%s' already exists .. didn't add user\n", *username);
 		return 0;
 	}	
 }
 
 
 /* Ends all services for the user - removes it from users array, deletes its messages */
-int remove_user_messages(str * s)
+int remove_user_messages(str * username)
 {
 	/* Remove user from users array and decrement array length */
-	remove_user(s);
-	remove_messages(s);
+	printf("Removing user '%s' from all databases\n", *username);
+	remove_user(username);
+	remove_messages(username);
 }
 
 /* Remove user from users array and decrement array length. 
 	Leaves users array in contigous state. */
-int remove_user(str * s) 
+int remove_user(str * username) 
 {
-	printf("Trying to delete user '%s'", *s);
-
-	int index = index_of_user(s);
+	printf("Trying to delete user '%s'", *username);
+	
+	int index = index_of_user(username);
 	
 	if (index == -1)
 	{
-		printf("but user '%s' doesn't exist\n", *s);
+		printf("but user '%s' doesn't exist\n", *username);
 		return 0;
 	}
  	
-	//couldTODO: Refactor this into userpop()
-	// Copy i+1th element into i until end of user array (userl)
+	// Shift left from index -> end of array
 	int i;
 	for (i = index; i < usersl-1; i++)
 	{
 		users[i] = users[i+1];
 	}
 	
-	// set this pointer value to null and deallocate it, decrement usersl to be correct
+	// set this pointer value to null and deallocate it, decrement usersl
 	users[--usersl] = (void *) 0;
 	free(users[usersl]);	
 	
-	printf(" ... deleted user '%s'\n", *s);
+	printf(" ... deleted user '%s'\n", *username);
 	return 1;	
 }
 
 
 /* Remove all messages associated with user from messages array. 
 	Leaves messages array in contigous state.  */
-int remove_messages(str * s)
+int remove_messages(str * username)
 {
+	printf("Removing messages for '%s' ..\n", *username);
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{
+		if (strcmp(*username, mailbox[i]->user) == 0)
+		{
+			mailboxpop_at(i);
+		}
+	}
+	
+	printf("\n");
+		
+	return 1;	
+}
 
+/* deletes the element at the `index` and 
+	shifts the mailbox[i+1..n] to mailbox[i..n-1] and decrements n */  
+int mailboxpop_at(int index)
+{		
+	printf(" \t.. deleting message '%.8s...\n", mailbox[index]->msg); 
+
+	for (; index < mailboxl-1; index++)
+	{
+		mailbox[index] = mailbox[index+1];	
+	} 
+	
+	// set this pointer value to null and deallocate it, decrement mailboxl
+	mailbox[--mailboxl] = (void *) 0;
+	free(mailbox[mailboxl]);
+
+	return 1;
 }
 
 
 int print_users() 
 {
-	printf("Printing %d users ...\n", usersl);
+	printf("Printing %d users...\n\n", usersl);
 	printf("\tuserid : username\n\t-------:---------\n");
 
 	int i;
@@ -172,14 +199,16 @@ int print_users()
 	{
 		printf("\t%6d : '%s'\n", i,  users[i]);
 	}
+	
+	printf("\n");
 	return 1;
 }
 
 
 int print_mailbox()
 {
-	printf("Printing %d messages...\n", mailboxl);
-	printf("\tmessage :\n\t\t username\n--------:---------\n");
+	printf("Printing %d messages...\n\n", mailboxl);
+	printf("\tuser :\n\t\t: properties\n\t-----:----------\n");
 
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -187,27 +216,41 @@ int print_mailbox()
 		printf("\t%s's mailbox::\n\t\tmessage id: %d\n\t\tmessage: %s\n\n",
 			 mailbox[i]->user, mailbox[i]->msgid, mailbox[i]->msg);
 	}
+
+	printf("\n");
 	return 1;
-}		
+}
+
+
+int print_users_messages(str * username)
+{
+	printf("Printing %s's messages .. \n", *username);
+
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{
+		if (strcmp(*username, mailbox[i]->user) == 0)
+		{
+			printf("\t%s\n", mailbox[i]->msg);
+		}
+	}	
+	
+	printf("\n");	
+	return 1;
+}
+		
 	
 int main(int argc, char * argv[]) 
 {
 	//printf("%d\n", is_in("tim", users, &usersl));	
 	//add_to_users("tim", users, &usersl);
 	//printf("%d\n", is_in("tim", users, &usersl));	
-	int i;
-	
-	
-	
-//`	printf("%d\n", is_in("tim", users, &usersl));
-
-//	char * s[3] = {"123456", "1094821", "190"};
 	users = calloc(1, sizeof(str *));
 	mailbox = calloc(1, sizeof(message *));
 	
 	/* Create users */	
-	str name = calloc(8, sizeof(char));
-	strcpy(name, "ishaan");
+	str name1 = calloc(8, sizeof(char));
+	strcpy(name1, "ishaan");
 	
 	str name2 = calloc(8, sizeof(char));
 	strcpy(name2, "arya");
@@ -219,17 +262,14 @@ int main(int argc, char * argv[])
 	strcpy(name4, "parul");
 
 
-	printf("%s - %p\n", name, &name);
 	
-	index_of_user(&name);	
+	printf("%s - %p\n", name1, &name1);
+	//index_of_user(&name1);	
 		//addUser(&name);
-	add_to_users(&name);
+	add_to_users(&name1);
 	//	printf("%s\n", (*s)++);	
 		//printf("%s\n\n", s[i]);
-	print_users();
 	
-	remove_user(&name);
-
 	print_users();		
 
 	add_to_users(&name2);
@@ -243,23 +283,43 @@ int main(int argc, char * argv[])
 	remove_user(&name4);
 	print_users();
 	
-	add_to_users(&name);
 	add_to_users(&name2);
-	print_users();
+	add_to_users(&name4);
+	
 
+	
+	printf("%s - %p\n", name1, &name1);
 
 	message m1 = {"ishaan", 0, "Hello there!"};
 	message m2 = {"ishaan", 1, "How have you been?"};
 	message m3 = {"arya", 2, "I've been great brotha. How about you?"};
 	message m4 = {"parul", 3, "Hello bebus"};
 	message m5 = {"ishaan", 4, "Hi Mom, hows it going?"};
-
+	message m6 = {"arya", 5, "hello ma"};
+	message m7 = {"samir", 6, "*video*"};
+	
+	printf("%s - %p\n", name1, &name1);
+	
+	print_users();
 	
 	add_to_mailbox(&m1);
 	add_to_mailbox(&m2);
 	add_to_mailbox(&m3);
 	add_to_mailbox(&m4);
 	add_to_mailbox(&m5);
-	//print_mailbox();
+	add_to_mailbox(&m6);
+	add_to_mailbox(&m7);
+	
+	printf("%s - %p\n", name1, &name1);
 
+	print_mailbox();
+
+	print_users_messages(&name1);
+	print_users_messages(&name2);
+	print_users_messages(&name3);
+	print_users_messages(&name4);	
+
+	remove_user_messages(&name3);
+	print_users();
+	print_mailbox();	
 } 
