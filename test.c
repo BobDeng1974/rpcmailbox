@@ -189,6 +189,28 @@ int mailboxpop_at(int index)
 }
 
 
+int delete_message(usermsgid * o)
+{	
+	printf("Trying to delete message (id: %d) .. ", o->msgid);
+	
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{
+		if (o->msgid == mailbox[i]->msgid)
+		{
+			if (strcmp(o->user, mailbox[i]->user) == 0)
+			{
+				printf(" .. deleting message '%.8s...i\n", mailbox[i]->msg);
+				mailboxpop_at(i);	
+			}
+		} 	
+	}
+	
+	printf("\n");
+
+}
+
+
 int print_users() 
 {
 	printf("Printing %d users...\n\n", usersl);
@@ -297,6 +319,7 @@ int main(int argc, char * argv[])
 	message m5 = {"ishaan", 4, "Hi Mom, hows it going?"};
 	message m6 = {"arya", 5, "hello ma"};
 	message m7 = {"samir", 6, "*video*"};
+	message m8 = {"arya", 7, "I'm Ishaan"};	
 	
 	printf("%s - %p\n", name1, &name1);
 	
@@ -309,16 +332,26 @@ int main(int argc, char * argv[])
 	add_to_mailbox(&m5);
 	add_to_mailbox(&m6);
 	add_to_mailbox(&m7);
-	
+	add_to_mailbox(&m8);
+		
 	printf("%s - %p\n", name1, &name1);
 
 	print_mailbox();
+	
+	// test delete message	
+	usermsgid o = {"arya", 7};
+	print_users_messages(&name2);
+	delete_message(&o);
+	print_users_messages(&name2);
 
+	
+	// test print user messages	
 	print_users_messages(&name1);
 	print_users_messages(&name2);
 	print_users_messages(&name3);
 	print_users_messages(&name4);	
 
+	// test remove user messages
 	remove_user_messages(&name3);
 	print_users();
 	print_mailbox();	
