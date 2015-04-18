@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 typedef char * str;
 typedef str * messages;
@@ -61,6 +65,8 @@ message make_message(str * s, int msgid, str * user)
 /* Adds *s to the end of the message list and increments the mailboxl (length) */
 int add_to_mailbox(message * m)
 {
+	pthread_mutex_lock(&mutex);
+
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 
 	// Make space for new message	
@@ -77,8 +83,12 @@ int add_to_mailbox(message * m)
 	mailbox[mailboxl++] = m;
 
 	printf(" .. successfully added message '%.25s'(cntd)\n", mailbox[mailboxl-1]->msg);
+	
+	pthread_mutex_unlock(&mutex);
 	return 1;
+	
 }
+
 
 /* Shifts all the elements in this array to the left by 1 popping off the oldest element */
 int mailboxpop()
@@ -94,6 +104,8 @@ int mailboxpop()
 /* Adds `*s` to the end of the user list and increments the usersl (length)*/
 int add_to_users(str * username)
 {
+	pthread_mutex_lock(&mutex);
+	
 	printf("Trying to add a user now");	
 	if (index_of_user(username) == -1)
 	{
@@ -102,11 +114,15 @@ int add_to_users(str * username)
 		users[usersl++] = *username;
 		
 		printf(". Successfully adding user '%s'\n", *username);
+		
+		pthread_mutex_unlock(&mutex);
 		return 1;	
 	}
 	else 
 	{
 		printf(" but user '%s' already exists .. didn't add user\n", *username);
+		
+		pthread_mutex_unlock(&mutex);
 		return 0;
 	}	
 }
@@ -115,16 +131,22 @@ int add_to_users(str * username)
 /* Ends all services for the user - removes it from users array, deletes its messages */
 int remove_user_messages(str * username)
 {
+	pthread_mutex_lock(&mutex);	
+
 	/* Remove user from users array and decrement array length */
 	printf("Removing user '%s' from all databases\n", *username);
 	remove_user(username);
 	remove_messages(username);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 /* Remove user from users array and decrement array length. 
 	Leaves users array in contigous state. */
 int remove_user(str * username) 
 {
+	pthread_mutex_lock(&mutex);	
+
 	printf("Trying to delete user '%s'", *username);
 	
 	int index = index_of_user(username);
@@ -147,6 +169,8 @@ int remove_user(str * username)
 	free(users[usersl]);	
 	
 	printf(" ... deleted user '%s'\n", *username);
+
+	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
@@ -155,6 +179,8 @@ int remove_user(str * username)
 	Leaves messages array in contigous state.  */
 int remove_messages(str * username)
 {
+	pthread_mutex_lock(&mutex);	
+
 	printf("Removing messages for '%s' ..\n", *username);
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -166,7 +192,8 @@ int remove_messages(str * username)
 	}
 	
 	printf("\n");
-		
+
+	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
@@ -191,6 +218,8 @@ int mailboxpop_at(int index)
 
 int delete_message(usermsgid * o)
 {	
+	pthread_mutex_lock(&mutex);
+
 	printf("Trying to delete message (id: %d) .. ", o->msgid);
 	
 	int i;
@@ -207,13 +236,17 @@ int delete_message(usermsgid * o)
 	}
 	
 	printf("\n");
+
+	pthread_mutex_unlock(&mutex);
 	return 1;
 }
 
+
 str retrieve_message(usermsgid * o)
 {
-	printf("Trying to retrieve message %s : %d .. ", o->user, o->msgid);
+	pthread_mutex_lock(&mutex);	
 
+	printf("Trying to retrieve message %s : %d .. ", o->user, o->msgid);
 	
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -224,19 +257,24 @@ str retrieve_message(usermsgid * o)
 			if (strcmp(o->user, mailbox[i]->user) == 0)
 			{
 				printf("found it!\n");
+				
+				pthread_mutex_unlock(&mutex);
 				return mailbox[i]->msg;
 			} 
 		} 	
 	}	
 	
 	printf("couldn't find it..\n");
+	pthread_mutex_unlock(&mutex);	
+
 	return calloc(1, sizeof(str));
-	
 }
 
 
 int print_users() 
 {
+	pthread_mutex_lock(&mutex);
+
 	printf("Printing %d users...\n\n", usersl);
 	printf("\tuserid : username\n\t-------:---------\n");
 
@@ -247,12 +285,16 @@ int print_users()
 	}
 	
 	printf("\n");
+
+	pthread_mutex_unlock(&mutex);
 	return 1;
 }
 
 
 int print_mailbox()
 {
+	pthread_mutex_lock(&mutex);
+	
 	printf("Printing %d messages...\n\n", mailboxl);
 	printf("\tuser :\n\t\t: properties\n\t-----:----------\n");
 
@@ -264,12 +306,16 @@ int print_mailbox()
 	}
 
 	printf("\n");
+
+	pthread_mutex_unlock(&mutex);
 	return 1;
 }
 
 
 int print_users_messages(str * username)
 {
+	pthread_mutex_lock(&mutex);
+	
 	printf("Printing %s's messages .. \n", *username);
 
 	int i;
@@ -282,6 +328,8 @@ int print_users_messages(str * username)
 	}	
 	
 	printf("\n");	
+
+	pthread_mutex_unlock(&mutex);
 	return 1;
 }
 		
