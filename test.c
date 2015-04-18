@@ -5,28 +5,32 @@
 typedef char * str;
 typedef str * messages;
 
-const int msglength = 80;
-const int messageslength = 100;
 
-struct message  {
+struct message {
         str user;
         int msgid;
         str msg;
 };
 typedef struct message message;
 
-struct usermsgid  {
+struct usermsgid {
         str user;
         int msgid;
 };
 typedef struct usermsgid usermsgid;
+
+/* Limits and keywords */
+
+const int CHARLIMIT = 80;
+const int BOXMSGLIMIT = 100;
+const int USERMSGLIMIT = 20;
 
 /* Stores users and length of users array */
 static str * users;
 static int usersl = 0;
 
 /* Stores messages and length of messages array */
-static message * mailbox;
+static message ** mailbox;
 static int mailboxl = 0;
 
 
@@ -44,6 +48,50 @@ int index_of_user(str * s)
 		}
 	}
 	return -1;
+}
+
+/* Creates a message structure and returns it (returns 0 if theres a problem) */
+message make_message(str * s, int msgid, str * user)
+{
+	
+
+}
+
+
+/* Adds *s to the end of the message list and increments the mailboxl (length) */
+int add_to_mailbox(message * m)
+{
+	printf("Trying to add message '%6s' to mailbox ", m->msg);
+	
+	if (mailboxl + 1 > BOXMSGLIMIT)
+	{
+		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
+	}
+	else
+	{
+		//message * temp = calloc(1, sizeof(message));
+		//mailbox[mailboxl] = *temp;
+		
+		*mailbox[mailboxl] = calloc(1, sizeof(message));
+
+	}
+	
+	*mailbox[mailboxl] = *m;
+	mailboxl++;	
+
+	printf(" .. successfully added message '%8s'\n", mailbox[mailboxl]->msg);
+	return 1;
+}
+
+/* Shifts all the elements in this array to the left by 1 popping off the oldest element */
+int mailboxpop()
+{
+	int i;
+	for (i = 0; i < mailboxl-1; i++)
+	{
+		mailbox[i] = mailbox[i+1];
+	}
+	mailboxl--;
 }
 
 /* Adds `*s` to the end of the user list and increments the usersl (length)*/
@@ -88,6 +136,7 @@ int remove_user(str * s)
 		return 0;
 	}
  	
+	//couldTODO: Refactor this into userpop()
 	// Copy i+1th element into i until end of user array (userl)
 	int i;
 	for (i = index; i < usersl-1; i++)
@@ -114,7 +163,7 @@ int remove_messages(str * s)
 
 int print_users() 
 {
-	printf("Printing %d users...\n", usersl);
+	printf("Printing %d users ...\n", usersl);
 	printf("\tuserid : username\n\t-------:---------\n");
 
 	int i;
@@ -126,7 +175,20 @@ int print_users()
 }
 
 
+int print_mailbox()
+{
+	printf("Printing %d messages...\n", mailboxl);
+	printf("\tmessage :\n\t\t username\n--------:---------\n");
 
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{
+		printf("\t%s's mailbox::\n\t\tmessage id: %d\n\t\tmessage: %s\n\n",
+			 mailbox[i]->user, mailbox[i]->msgid, mailbox[i]->msg);
+	}
+	return 1;
+}		
+	
 int main(int argc, char * argv[]) 
 {
 	//printf("%d\n", is_in("tim", users, &usersl));	
@@ -140,14 +202,12 @@ int main(int argc, char * argv[])
 
 //	char * s[3] = {"123456", "1094821", "190"};
 	users = calloc(1, sizeof(str *));
+	mailbox = calloc(1, sizeof(message *));
 	
-
-	
-	
+	/* Create users */	
 	str name = calloc(8, sizeof(char));
 	strcpy(name, "ishaan");
 	
-
 	str name2 = calloc(8, sizeof(char));
 	strcpy(name2, "arya");
 
@@ -185,6 +245,16 @@ int main(int argc, char * argv[])
 	add_to_users(&name);
 	add_to_users(&name2);
 	print_users();
-		
+
+
+	message m1 = {"Hello there!", 0, "ishaan"};
+	message m2 = {"How have you been?", 1, "ishaan"};
+	message m3 = {"I've been great brotha. How about you?", 2, "arya"};
+	message m4 = {"Hello bebus", 3, "parul"};
+	message m5 = {"Hi Mom, hows it going?", 4, "ishaan"};
+
+	
+	add_to_mailbox(&m1);
+	print_mailbox();
 
 } 
