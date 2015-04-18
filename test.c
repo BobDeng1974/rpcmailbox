@@ -207,7 +207,31 @@ int delete_message(usermsgid * o)
 	}
 	
 	printf("\n");
+	return 1;
+}
 
+str retrieve_message(usermsgid * o)
+{
+	printf("Trying to retrieve message %s : %d .. ", o->user, o->msgid);
+
+	
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{	
+		if (o->msgid == mailbox[i]->msgid)
+		{
+			
+			if (strcmp(o->user, mailbox[i]->user) == 0)
+			{
+				printf("found it!\n");
+				return mailbox[i]->msg;
+			} 
+		} 	
+	}	
+	
+	printf("couldn't find it..\n");
+	return calloc(1, sizeof(str));
+	
 }
 
 
@@ -354,5 +378,12 @@ int main(int argc, char * argv[])
 	// test remove user messages
 	remove_user_messages(&name3);
 	print_users();
-	print_mailbox();	
+	print_mailbox();
+
+	// test retrieve message
+	//usermsgid o2 = {"samir", 6};
+
+	usermsgid another = {"arya", 2};
+	str s1 = retrieve_message(&another);
+	printf("%s\n", s1);	
 } 
