@@ -61,25 +61,26 @@ message make_message(str * s, int msgid, str * user)
 /* Adds *s to the end of the message list and increments the mailboxl (length) */
 int add_to_mailbox(message * m)
 {
-	printf("Trying to add message '%6s' to mailbox ", m->msg);
+	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 	
 	if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
+		//print_mailbox();
 	}
 	else
 	{
 		//message * temp = calloc(1, sizeof(message));
 		//mailbox[mailboxl] = *temp;
 		
-		*mailbox[mailboxl] = calloc(1, sizeof(message));
+		mailbox[mailboxl] = (message*) calloc(1, sizeof(message));
 
 	}
 	
-	*mailbox[mailboxl] = *m;
-	mailboxl++;	
+	mailbox[mailboxl++] = m;
+	//mailboxl++;	
 
-	printf(" .. successfully added message '%8s'\n", mailbox[mailboxl]->msg);
+	printf(" .. successfully added message '%.25s'(cntd)\n", mailbox[mailboxl-1]->msg);
 	return 1;
 }
 
@@ -247,14 +248,18 @@ int main(int argc, char * argv[])
 	print_users();
 
 
-	message m1 = {"Hello there!", 0, "ishaan"};
-	message m2 = {"How have you been?", 1, "ishaan"};
-	message m3 = {"I've been great brotha. How about you?", 2, "arya"};
-	message m4 = {"Hello bebus", 3, "parul"};
-	message m5 = {"Hi Mom, hows it going?", 4, "ishaan"};
+	message m1 = {"ishaan", 0, "Hello there!"};
+	message m2 = {"ishaan", 1, "How have you been?"};
+	message m3 = {"arya", 2, "I've been great brotha. How about you?"};
+	message m4 = {"parul", 3, "Hello bebus"};
+	message m5 = {"ishaan", 4, "Hi Mom, hows it going?"};
 
 	
 	add_to_mailbox(&m1);
-	print_mailbox();
+	add_to_mailbox(&m2);
+	add_to_mailbox(&m3);
+	add_to_mailbox(&m4);
+	add_to_mailbox(&m5);
+	//print_mailbox();
 
 } 
