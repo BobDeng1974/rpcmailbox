@@ -98,6 +98,8 @@ int remove_user(str * s)
 	// set this pointer value to null and deallocate it, decrement usersl to be correct
 	users[--usersl] = (void *) 0;
 	free(users[usersl]);	
+	
+	printf(" ... deleted user '%s'\n", *s);
 	return 1;	
 }
 
