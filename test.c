@@ -25,6 +25,7 @@ typedef struct usermsgid usermsgid;
 
 struct listmessages {
 	messages list;
+	int length;
 };
 typedef struct listmessages listmessages;
 
@@ -378,6 +379,7 @@ int list_messages(str * argp)
 		result.list[i] = temp[i];
 		printf("\t%s\n", temp[i]);
 	}
+	results.list = k;
 	
 	printf("\n");	
 

@@ -42,6 +42,7 @@ start1_1_svc(char* *argp, struct svc_req *rqstp)
 	str * username = &s;
 
 	printf("Trying to add a user now");	
+	// check if nothing has been allocated
 	if (usersinit == 0)
 	{
 		users = calloc(1, sizeof(str *));
@@ -166,7 +167,7 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 
-	// Make space for new message
+	// Make space for new message (don't forget to check if nothing has been allocated)
 	if (mailboxinit == 0)
 	{
 		mailbox = calloc(1, sizeof(message *));
@@ -203,6 +204,7 @@ retrieve_message_1_svc(struct usermsgid *argp, struct svc_req *rqstp)
 
 	printf("Trying to retrieve message %s : %d .. ", o->user, o->msgid);
 	
+	// finding appropriate message
 	int i;
 	for (i = 0; i < mailboxl; i++)
 	{	
@@ -243,6 +245,7 @@ list_all_messages_1_svc(char* *argp, struct svc_req *rqstp)
 
 	str * temp = calloc(1, sizeof(str*));
 
+	// gathering all relevant messages
 	int k = 0;
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -256,6 +259,7 @@ list_all_messages_1_svc(char* *argp, struct svc_req *rqstp)
 
 	printf("there are %d of them:\n", k);
 
+	// setting values equal in struct
 	result.list = calloc(1, sizeof(str *));
 	for (i = 0; i < k; i++)
 	{
@@ -263,6 +267,7 @@ list_all_messages_1_svc(char* *argp, struct svc_req *rqstp)
 		result.list[i] = temp[i];
 		printf("\t%s\n", temp[i]);
 	}
+	result.length = k;
 	
 	printf("\n");	
 

@@ -17,7 +17,7 @@ mailbox_1(char *host)
 	void  *result_2;
 	char * quit1_1_arg;
 	void  *result_3;
-	struct message  insert_message1_1_arg;
+	struct message  msg;
 	char * *result_4;
 	struct usermsgid  retrieve_message_1_arg;
 	struct listmessages  *result_5;
@@ -41,7 +41,7 @@ mailbox_1(char *host)
 	if (result_2 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	result_3 = insert_message1_1(&insert_message1_1_arg, clnt);
+	result_3 = insert_message1_1(&msg, clnt);
 	if (result_3 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
@@ -69,67 +69,87 @@ mailbox_2(char *host)
 {
 	CLIENT *clnt;
 
-	void  *result_1;
-	str start1_1_arg = strdup("ishaan");
+	void  *result_1_1;
+	void  *result_1_2;
+	void  *result_1_3;
+	str name1 = strdup("ishaan");
+	str name2 = strdup("malia");
+	str name3 = strdup("tanvit");
+	str name4 = strdup("rahul");
 
 	void  *result_2;
-	str quit1_1_arg = strdup("ishaan");
+	str toremove = strdup("bb");
 	
 	void  *result_3;
-	message  insert_message1_1_arg = {"ishaan\n", 0, "hello world\n"};
+	message  msg = {"ishaan\0", 0, "hello world\0"};
+	message  m2 = {"malia\0", 1, "shatdup ishaan\0"};
 
 	str *result_4;
-	usermsgid  retrieve_message_1_arg = {"ishaan\n", 0};
+	usermsgid  retrieve_message_1_arg = {"ishaan\0", 0};
 
 	struct listmessages  *result_5;
-	str list_all_messages_1_arg = strdup("ishaan\n");
+	str list_all_messages_1_arg = strdup("ishaan\0");
 
 	void  *result_6;
-	struct usermsgid  delete_message_1_arg = {"ishaan\n", 0};
+	struct usermsgid  delete_message_1_arg = {"ishaan\0", 0};
 	
+
 	clnt = clnt_create (host, MAILBOX, ver, "udp");
 	if (clnt == NULL) {
 		clnt_pcreateerror (host);
 		exit (1);
 	}
 
-	printf("result1 starting.. \n");
-	result_1 = start1_1(&start1_1_arg, clnt);
-	if (result_1 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	
-	printf("result2 starting\n");
-	result_2 = quit1_1(&quit1_1_arg, clnt);
-	if (result_2 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
 
-	printf("result3 starting\n");
-	fflush(0);
-	result_3 = insert_message1_1(&insert_message1_1_arg, clnt);
+	printf("Attempting to add users.. '%s', '%s', and '%s' \n", name1, name2, name3);
+	result_1_1 = start1_1(&name1, clnt);
+	result_1_2 = start1_1(&name2, clnt);
+	result_1_3 = start1_1(&name3, clnt);
+	
+	printf("Attempting to remove '%s' and '%s' from database .. \n", name3, name4);
+	result_2 = quit1_1(&toremove, clnt);
+	result_2 = quit1_1(&toremove, clnt);
+	printf("\n");
+
+	printf("Inserting messages '%.8s... and %.8s...\n", msg.msg, m2.msg);
+	result_3 = insert_message1_1(&msg, clnt);
 	if (result_3 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
+	result_3 = insert_message1_1(&m2, clnt);
 
-	printf("trying to retrieve message");
 
+	printf("Trying to retrieve message 0\n");
 	result_4 = retrieve_message_1(&retrieve_message_1_arg, clnt);
 	if (result_4 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	} else {
 		printf("MesSAGES!!!!: %s\n", *result_4);
 	}
-	fflush(0);
+	
+
+	printf("Listing all messages for 'ishaan' and 'malia'\n");
 	
 	result_5 = list_all_messages_1(&list_all_messages_1_arg, clnt);
 	if (result_5 == (struct listmessages *) NULL) {
 		clnt_perror (clnt, "call failed");
-	} else {
-		printf("first messages\n\t%s", result_5->list[0]);
 	}
-	fflush(0);
-	
+	int i;
+	for (i = 0; i < result_5->length; i++)
+	{
+		printf("\t'%s'\n", result_5->list[i]);
+	}
+
+	result_5 = list_all_messages_1(&name2, clnt);
+	if (result_5 == (struct listmessages *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	for (i = 0; i < result_5->length; i++)
+	{
+		printf("\t'%s'\n", result_5->list[i]);
+	}
+
+	printf("Deleting message '%.8s...\n", delete_message_1_arg);
 	result_6 = delete_message_1(&delete_message_1_arg, clnt);
 	if (result_6 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
