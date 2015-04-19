@@ -174,7 +174,7 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 		mailbox = calloc(1, sizeof(message *));
 		mailboxinit = 1;
 	}
-	if (mailboxl + 1 > BOXMSGLIMIT)
+	else if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
 	}
