@@ -110,8 +110,6 @@ quit1_1_svc(char* *argp, struct svc_req *rqstp)
 	Leaves users array in contigous state. */
 int remove_user(str * username) 
 {
-	pthread_mutex_lock(&mutex);	
-
 	printf("Trying to delete user '%s'", *username);
 	
 	int index = index_of_user(username);
@@ -135,7 +133,6 @@ int remove_user(str * username)
 	
 	printf(" ... deleted user '%s'\n", *username);
 
-	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
@@ -143,8 +140,6 @@ int remove_user(str * username)
 	Leaves messages array in contigous state.  */
 int remove_messages(str * username)
 {
-	pthread_mutex_lock(&mutex);	
-
 	printf("Removing messages for '%s' ..\n", *username);
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -157,7 +152,6 @@ int remove_messages(str * username)
 	
 	printf("\n");
 
-	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
