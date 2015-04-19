@@ -75,23 +75,17 @@ mailbox_2(char *host)
 	void  *result_2;
 	str quit1_1_arg = strdup("ishaan");
 	
-	printf("at least something is getting loaded");
-	fflush(0);
-
 	void  *result_3;
-	message  insert_message1_1_arg = {"ishaan", 0, "hello world"};
+	message  insert_message1_1_arg = {"ishaan\n", 0, "hello world\n"};
 
 	str *result_4;
-	usermsgid  retrieve_message_1_arg = {"ishaan", 0};
+	usermsgid  retrieve_message_1_arg = {"ishaan\n", 0};
 
 	struct listmessages  *result_5;
-	str list_all_messages_1_arg = strdup("ishaan");
+	str list_all_messages_1_arg = strdup("ishaan\n");
 
 	void  *result_6;
-	struct usermsgid  delete_message_1_arg = {"ishaan", 0};
-
-	printf("problem isn't the structs..?");
-	fflush(0);
+	struct usermsgid  delete_message_1_arg = {"ishaan\n", 0};
 	
 	clnt = clnt_create (host, MAILBOX, ver, "udp");
 	if (clnt == NULL) {
@@ -99,20 +93,20 @@ mailbox_2(char *host)
 		exit (1);
 	}
 
-	printf("result1 starting");
-	fflush(0);
+	printf("result1 starting.. \n");
 	result_1 = start1_1(&start1_1_arg, clnt);
+
 	if (result_1 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	printf("result2 starting");
-	fflush(0);
+	
+	printf("result2 starting\n");
 	result_2 = quit1_1(&quit1_1_arg, clnt);
 	if (result_2 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 
-	printf("result3 starting");
+	printf("result3 starting\n");
 	fflush(0);
 	result_3 = insert_message1_1(&insert_message1_1_arg, clnt);
 	if (result_3 == (void *) NULL) {

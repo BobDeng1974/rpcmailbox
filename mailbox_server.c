@@ -25,7 +25,6 @@ int usersl = 0;
 static message ** mailbox;
 int mailboxl = 0;
 
-
 /***
 	Begin functions
 ***/
@@ -36,7 +35,8 @@ start1_1_svc(char* *argp, struct svc_req *rqstp)
 {
 	pthread_mutex_lock(&mutex);
 	
-	str * username = &strdup(*argp);
+	str s = strdup(*argp);
+	str * username = &s;
 
 	printf("Trying to add a user now");	
 	if (index_of_user(username) == -1 || usersl == 0)
@@ -82,7 +82,8 @@ quit1_1_svc(char* *argp, struct svc_req *rqstp)
 {
 	pthread_mutex_lock(&mutex);	
 	
-	str * username = &strdup(*argp);
+	str s = strdup(*argp);
+	str * username = &s;
 
 
 	/* Remove user from users array and decrement array length */
@@ -159,7 +160,7 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 {
 	pthread_mutex_lock(&mutex);
 
-	message * o = argp;
+	message * m = argp;
 
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 
@@ -170,7 +171,7 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 	}
 	else
 	{
-		mailbox[mailboxl] = (message*) calloc(1, sizeof(message));
+		mailbox[mailboxl] = (message*) calloc(1, sizeof(message*));
 	}
 
 	// Add new message	
@@ -206,7 +207,7 @@ retrieve_message_1_svc(struct usermsgid *argp, struct svc_req *rqstp)
 				printf("found it!\n");
 				
 				pthread_mutex_unlock(&mutex);
-				return mailbox[i]->msg;
+				return &mailbox[i]->msg;
 			} 
 		} 	
 	}	
@@ -292,6 +293,18 @@ delete_message_1_svc(struct usermsgid *argp, struct svc_req *rqstp)
 	pthread_mutex_unlock(&mutex);
 
 	return (void *) &result;
+}
+
+
+/* Shifts all the elements in this array to the left by 1 popping off the oldest element */
+int mailboxpop()
+{
+	int i;
+	for (i = 0; i < mailboxl-1; i++)
+	{
+		mailbox[i] = mailbox[i+1];
+	}
+	mailboxl--;
 }
 
 /* deletes the element at the `index` and 
