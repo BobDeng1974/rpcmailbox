@@ -23,6 +23,11 @@ struct usermsgid {
 };
 typedef struct usermsgid usermsgid;
 
+struct listmessages {
+	messages list;
+};
+typedef struct listmessages listmessages;
+
 /* Limits and keywords */
 
 const int CHARLIMIT = 80;
