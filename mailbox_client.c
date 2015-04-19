@@ -9,126 +9,78 @@
 
 
 void
-mailbox_1(char *host)
-{
-	CLIENT *clnt;
-	void  *result_1;
-	char * start1_1_arg;
-	void  *result_2;
-	char * quit1_1_arg;
-	void  *result_3;
-	struct message  msg;
-	char * *result_4;
-	struct usermsgid  retrieve_message_1_arg;
-	struct listmessages  *result_5;
-	char * list_all_messages_1_arg;
-	void  *result_6;
-	struct usermsgid  delete_message_1_arg;
-
-#ifndef	DEBUG
-	clnt = clnt_create (host, MAILBOX, ver, "udp");
-	if (clnt == NULL) {
-		clnt_pcreateerror (host);
-		exit (1);
-	}
-#endif	/* DEBUG */
-
-	result_1 = start1_1(&start1_1_arg, clnt);
-	if (result_1 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_2 = quit1_1(&quit1_1_arg, clnt);
-	if (result_2 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_3 = insert_message1_1(&msg, clnt);
-	if (result_3 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_4 = retrieve_message_1(&retrieve_message_1_arg, clnt);
-	if (result_4 == (char **) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_5 = list_all_messages_1(&list_all_messages_1_arg, clnt);
-	if (result_5 == (struct listmessages *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_6 = delete_message_1(&delete_message_1_arg, clnt);
-	if (result_6 == (void *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-#ifndef	DEBUG
-	clnt_destroy (clnt);
-#endif	 /* DEBUG */
-}
-
-
-
-void
 mailbox_2(char *host)
 {
 	CLIENT *clnt;
 
+	/// initialize loads of variables
+	
 	void  *result_1_1;
 	void  *result_1_2;
 	void  *result_1_3;
 	void  *result_1_4;
+	// initialize usernames
 	str name1 = strdup("ishaan");
 	str name2 = strdup("malia");
 	str name3 = strdup("tanvit");
 	str name4 = strdup("rahul");
 
 	void  *result_2;
-	
 	void  *result_3;
-	message  msg = {"ishaan\0", 0, "hello world\0"};
-	message  m2 = {"malia\0", 1, "shatdup ishaan\0"};
+	// initialize messages
+	message * msg = {"ishaan\0", 0, "hello world\0"};
+	message * m2 = {"malia\0", 1, "shatdup ishaan\0"};
 
+	// initialize arguments for retrieve message
 	str *result_4;
-	usermsgid  retrieve_message_1_arg = {"ishaan\0", 0};
+	usermsgid * retrieve_message_1_arg = {"ishaan\0", 0};
 
-	struct listmessages  *result_5;
+	// initialize arguments for list message
+	struct listmessages * result_5;
 	str list_all_messages_1_arg = strdup("ishaan\0");
 
-	void  *result_6;
-	struct usermsgid  delete_message_1_arg = {"ishaan\0", 0};
+	// initialize arguments for delete message
+	void * result_6;
+	struct usermsgid * delete_message_1_arg = {"ishaan\0", 0};
 	
-
+	// create client
 	clnt = clnt_create (host, MAILBOX, ver, "udp");
 	if (clnt == NULL) {
 		clnt_pcreateerror (host);
 		exit (1);
 	}
 
-
+	// Testing adding users
 	printf("Attempting to add users.. '%s', '%s', and '%s' \n", name1, name2, name3);
 	result_1_1 = start1_1(&name1, clnt);
 	result_1_2 = start1_1(&name2, clnt);
 	result_1_3 = start1_1(&name3, clnt);
 	result_1_4 = start1_1(&name4, clnt);
 	
+	// Testing removing users
 	printf("Attempting to remove '%s' and '%s' from database .. \n", name3, name4);
 	result_2 = quit1_1(&name3, clnt);
 	result_2 = quit1_1(&name4, clnt);
 	printf("\n");
 
-	printf("Inserting messages '%.8s... and %.8s...\n", msg.msg, m2.msg);
-	result_3 = insert_message1_1(&msg, clnt);
+	// Testing inserting messages
+	printf("Inserting messages '%.8s... and %.8s...\n", msg->msg, m2->msg);
+	result_3 = insert_message1_1(msg, clnt);
 	if (result_3 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	result_3 = insert_message1_1(&m2, clnt);
+	result_3 = insert_message1_1(m2, clnt);
 
-
+	// Testing retrieving message
 	printf("Trying to retrieve message 0\n");
-	result_4 = retrieve_message_1(&retrieve_message_1_arg, clnt);
+	result_4 = retrieve_message_1(retrieve_message_1_arg, clnt);
 	if (result_4 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	} else {
 		printf("MesSAGES!!!!: %s\n", *result_4);
 	}
 	
-
+	// Testing list messages
 	printf("Listing all messages for 'ishaan' and 'malia'\n");
 	
 	result_5 = list_all_messages_1(&list_all_messages_1_arg, clnt);
@@ -150,12 +102,14 @@ mailbox_2(char *host)
 		printf("\t'%s'\n", result_5->list[i]);
 	}
 
-	printf("Deleting message '%.8s...\n", delete_message_1_arg);
-	result_6 = delete_message_1(&delete_message_1_arg, clnt);
+
+	// Testing message deletion
+	printf("Deleting message %d '%.8s...\n", delete_message_1_arg->msgid, delete_message_1_arg->user);
+	result_6 = delete_message_1(delete_message_1_arg, clnt);
 	if (result_6 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-		
+	
 	printf("done?");
 	fflush(0);
 #ifndef	DEBUG

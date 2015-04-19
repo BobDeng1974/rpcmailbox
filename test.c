@@ -226,13 +226,14 @@ int mailboxpop_at(int index)
 	return 1;
 }
 
-
+/* Deletes specified message */
 int delete_message(usermsgid * o)
 {	
 	pthread_mutex_lock(&mutex);
 
 	printf("Trying to delete message (id: %d) .. ", o->msgid);
 	
+	// First compares msgid then user
 	int i;
 	for (i = 0; i < mailboxl; i++)
 	{
@@ -252,13 +253,14 @@ int delete_message(usermsgid * o)
 	return 1;
 }
 
-
+/* Retrieves message from mailbox */
 str retrieve_message(usermsgid * o)
 {
 	pthread_mutex_lock(&mutex);	
 
 	printf("Trying to retrieve message %s : %d .. ", o->user, o->msgid);
 	
+	// First compares msgid then user
 	int i;
 	for (i = 0; i < mailboxl; i++)
 	{	
@@ -281,7 +283,7 @@ str retrieve_message(usermsgid * o)
 	return calloc(1, sizeof(str));
 }
 
-
+/* Pretty print all users */
 int print_users() 
 {
 	pthread_mutex_lock(&mutex);
@@ -301,7 +303,7 @@ int print_users()
 	return 1;
 }
 
-
+/* Pretty print all messages */
 int print_mailbox()
 {
 	pthread_mutex_lock(&mutex);
@@ -322,7 +324,7 @@ int print_mailbox()
 	return 1;
 }
 
-
+/* Print a specified user's messages */
 int print_users_messages(str * username)
 {
 	pthread_mutex_lock(&mutex);
@@ -344,10 +346,12 @@ int print_users_messages(str * username)
 	return 1;
 }
 
-int list_messages(str * argp)
+/* Returns a listmessages of specified users mailbox */
+listmessages list_messages(str * argp)
 {
 	pthread_mutex_lock(&mutex);
 
+	// initializations
 	static struct listmessages result = {0};
 	
 	printf("User: %s\n", *argp);
@@ -359,6 +363,7 @@ int list_messages(str * argp)
 
 	str * temp = calloc(1, sizeof(str*));
 
+	// gathering all relevant messages
 	int k = 0;
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -372,6 +377,7 @@ int list_messages(str * argp)
 
 	printf("there are %d of them:\n", k);
 
+	// setting listmessages values
 	result.list = calloc(1, sizeof(str *));
 	for (i = 0; i < k; i++)
 	{
@@ -412,25 +418,27 @@ int main(int argc, char * argv[])
 	printf("%s -> %s\n", name1, copy);
 	
 	printf("%s - %p\n", name1, &name1);
-	//index_of_user(&name1);	
-		//addUser(&name);
+
+
 	add_to_users(&name1);
-	//	printf("%s\n", (*s)++);	
-		//printf("%s\n\n", s[i]);
+
 	
 	print_users();		
 
+	/* add users */
 	add_to_users(&name2);
 	add_to_users(&name3);
 	add_to_users(&name4);
 	
 	print_users();
 	
+	/* remove users */
 	remove_user(&name2);
 	print_users();
 	remove_user(&name4);
 	print_users();
 	
+	/* add them back */
 	add_to_users(&name2);
 	add_to_users(&name4);
 	
@@ -442,6 +450,8 @@ int main(int argc, char * argv[])
 	
 	printf("%s - %p\n", name1, &name1);
 
+
+	/* create messages */
 	message m1 = {"ishaan\0", 0, "Hello there!\0"};
 	message m2 = {"ishaan\0", 1, "How have you been?\0"};
 	message m3 = {"arya\0", 2, "I've been great brotha. How about you?\0"};
@@ -455,6 +465,7 @@ int main(int argc, char * argv[])
 	
 	print_users();
 	
+	/* add messages */
 	add_to_mailbox(&m1);
 	add_to_mailbox(&m2);
 	add_to_mailbox(&m3);
@@ -476,20 +487,18 @@ int main(int argc, char * argv[])
 	list_messages(&name2);
 	*/
 
-	// test print user messages	
+	/* test print user messages	*/
 	list_messages(&name1);
 	list_messages(&name2);
 	list_messages(&name3);
 	list_messages(&name4);	
 
-	// test remove user messages
+	/* test remove user messages */
 	remove_user_messages(&name3);
 	print_users();
 	print_mailbox();
 
-	// test retrieve message
-	//usermsgid o2 = {"samir", 6};
-
+	/* test retrieve message */
 	usermsgid another = {"arya", 2};
 	str s1 = retrieve_message(&another);
 	printf("%s\n\n", s1);	
