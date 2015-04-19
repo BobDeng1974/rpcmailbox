@@ -95,7 +95,6 @@ mailbox_2(char *host)
 
 	printf("result1 starting.. \n");
 	result_1 = start1_1(&start1_1_arg, clnt);
-
 	if (result_1 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
@@ -118,15 +117,17 @@ mailbox_2(char *host)
 	result_4 = retrieve_message_1(&retrieve_message_1_arg, clnt);
 	if (result_4 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
+	} else {
+		printf("MesSAGES!!!!: %s\n", *result4);
 	}
-	printf("retrieved message: %s", *result_4);
 	fflush(0);
 	
 	result_5 = list_all_messages_1(&list_all_messages_1_arg, clnt);
 	if (result_5 == (struct listmessages *) NULL) {
 		clnt_perror (clnt, "call failed");
+	} else {
+		printf("first messages\n\t%s", result_5->list[0]);
 	}
-	printf("first messages\n\t%s", result_5->list[0]);
 	fflush(0);
 	
 	result_6 = delete_message_1(&delete_message_1_arg, clnt);
