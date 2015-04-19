@@ -10,6 +10,7 @@
 #include <string.h>
 #include <pthread.h>
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* Limits and keywords */
 const int CHARLIMIT = 80;
