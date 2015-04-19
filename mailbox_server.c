@@ -42,6 +42,7 @@ start1_1_svc(char* *argp, struct svc_req *rqstp)
 	str * username = &s;
 
 	printf("Trying to add a user now");	
+	fflush(0);
 	// check if nothing has been allocated
 	if (usersinit == 0)
 	{

@@ -72,13 +72,13 @@ mailbox_2(char *host)
 	void  *result_1_1;
 	void  *result_1_2;
 	void  *result_1_3;
+	void  *result_1_4;
 	str name1 = strdup("ishaan");
 	str name2 = strdup("malia");
 	str name3 = strdup("tanvit");
 	str name4 = strdup("rahul");
 
 	void  *result_2;
-	str toremove = strdup("bb");
 	
 	void  *result_3;
 	message  msg = {"ishaan\0", 0, "hello world\0"};
@@ -105,10 +105,11 @@ mailbox_2(char *host)
 	result_1_1 = start1_1(&name1, clnt);
 	result_1_2 = start1_1(&name2, clnt);
 	result_1_3 = start1_1(&name3, clnt);
+	result_1_4 = start1_1(&name4, clnt);
 	
 	printf("Attempting to remove '%s' and '%s' from database .. \n", name3, name4);
-	result_2 = quit1_1(&toremove, clnt);
-	result_2 = quit1_1(&toremove, clnt);
+	result_2 = quit1_1(&name3, clnt);
+	result_2 = quit1_1(&name4, clnt);
 	printf("\n");
 
 	printf("Inserting messages '%.8s... and %.8s...\n", msg.msg, m2.msg);
