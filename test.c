@@ -37,11 +37,12 @@ const int USERMSGLIMIT = 20;
 /* Stores users and length of users array */
 static str * users;
 int usersl = 0;
+int usersinit = 0;
 
 /* Stores messages and length of messages array */
 static message ** mailbox;
 int mailboxl = 0;
-
+int mailboxinit = 0;
 
 
 int index_of_user(str * username)
@@ -75,7 +76,12 @@ int add_to_mailbox(message * m)
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 
 	// Make space for new message	
-	if (mailboxl + 1 > BOXMSGLIMIT)
+	if (mailboxinit == 0)
+	{
+		mailbox = calloc(1, sizeof(message *));
+		mailboxinit = 1;
+	}
+	else if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
 	}
@@ -112,7 +118,12 @@ int add_to_users(str * username)
 	pthread_mutex_lock(&mutex);
 	
 	printf("Trying to add a user now");	
-	if (index_of_user(username) == -1 || usersl == 0)
+	if (usersinit == 0)
+	{
+		users = calloc(1, sizeof(str *));
+		usersinit = 1;
+	}
+	if (index_of_user(username) == -1)
 	{
 		// make space, add the username in, and increment length of users
 		users[usersl] = calloc(1, sizeof(char*));
@@ -150,8 +161,6 @@ void remove_user_messages(str * username)
 	Leaves users array in contigous state. */
 int remove_user(str * username) 
 {
-	pthread_mutex_lock(&mutex);	
-
 	printf("Trying to delete user '%s'", *username);
 	
 	int index = index_of_user(username);
@@ -175,7 +184,6 @@ int remove_user(str * username)
 	
 	printf(" ... deleted user '%s'\n", *username);
 
-	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
@@ -184,8 +192,6 @@ int remove_user(str * username)
 	Leaves messages array in contigous state.  */
 int remove_messages(str * username)
 {
-	pthread_mutex_lock(&mutex);	
-
 	printf("Removing messages for '%s' ..\n", *username);
 	int i;
 	for (i = 0; i < mailboxl; i++)
@@ -198,7 +204,6 @@ int remove_messages(str * username)
 	
 	printf("\n");
 
-	pthread_mutex_unlock(&mutex);
 	return 1;	
 }
 
@@ -342,27 +347,37 @@ int list_messages(str * argp)
 {
 	pthread_mutex_lock(&mutex);
 
-	static struct listmessages result;
+	static struct listmessages result = {0};
 	
 	printf("User: %s\n", *argp);
 
 	str s = strdup(*argp);
 	str * username = &s;
 
-	printf("Printing %s's messages .. \n", *username);
+	printf("Printing %s's messages .. ", *username);
 
-	str * list;
+	str * temp = calloc(1, sizeof(str*));
 
 	int k = 0;
 	int i;
 	for (i = 0; i < mailboxl; i++)
 	{
 		if (strcmp(*username, mailbox[i]->user) == 0)
-		{
-			list[k++] = strdup(mailbox[i]->user);
-			printf("\t%s\n", list[k-1]);
+		{	
+			temp[k] = calloc(1, sizeof(str));
+			temp[k++] = mailbox[i]->msg;	
 		}
 	}	
+
+	printf("there are %d of them:\n", k);
+
+	result.list = calloc(1, sizeof(str *));
+	for (i = 0; i < k; i++)
+	{
+		result.list[i] = calloc(1, sizeof(str));
+		result.list[i] = temp[i];
+		printf("\t%s\n", temp[i]);
+	}
 	
 	printf("\n");	
 
@@ -377,8 +392,10 @@ int main(int argc, char * argv[])
 	//printf("%d\n", is_in("tim", users, &usersl));	
 	//add_to_users("tim", users, &usersl);
 	//printf("%d\n", is_in("tim", users, &usersl));	
+	/*
 	users = calloc(1, sizeof(str *));
 	mailbox = calloc(1, sizeof(message *));
+	*/
 
 	/* Create users */	
 	str name1 = strdup("ishaan\0");
@@ -478,7 +495,7 @@ int main(int argc, char * argv[])
 
 	usermsgid another = {"arya", 2};
 	str s1 = retrieve_message(&another);
-	printf("%s\n", s1);	
+	printf("%s\n\n", s1);	
 
 	list_messages(&name2);
 } 

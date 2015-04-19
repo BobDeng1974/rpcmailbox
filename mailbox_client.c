@@ -119,6 +119,8 @@ mailbox_2(char *host)
 		clnt_perror (clnt, "call failed");
 	}
 
+	printf("trying to retrieve message");
+
 	result_4 = retrieve_message_1(&retrieve_message_1_arg, clnt);
 	if (result_4 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
@@ -130,7 +132,7 @@ mailbox_2(char *host)
 	if (result_5 == (struct listmessages *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	printf("first messages\n\t%s", result_5->msg);
+	printf("first messages\n\t%s", result_5->list[0]);
 	fflush(0);
 	
 	result_6 = delete_message_1(&delete_message_1_arg, clnt);
