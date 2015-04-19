@@ -20,10 +20,13 @@ const int USERMSGLIMIT = 20;
 /* Stores users and length of users array */
 static str * users;
 int usersl = 0;
+int usersinit = 0;
+
 
 /* Stores messages and length of messages array */
 static message ** mailbox;
 int mailboxl = 0;
+int mailboxinit = 0;
 
 /***
 	Begin functions
@@ -39,7 +42,12 @@ start1_1_svc(char* *argp, struct svc_req *rqstp)
 	str * username = &s;
 
 	printf("Trying to add a user now");	
-	if (index_of_user(username) == -1 || usersl == 0)
+	if (usersinit == 0)
+	{
+		users = calloc(1, sizeof(str *));
+		usersinit = 1;
+	}
+	else if (index_of_user(username) == -1)
 	{
 		// make space, add the username in, and increment length of users
 		users[usersl] = calloc(1, sizeof(char*));
@@ -164,7 +172,12 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 
 	printf("Trying to add message '%.7s... to mailbox ", m->msg);
 
-	// Make space for new message	
+	// Make space for new message
+	if (mailboxinit == 0)
+	{
+		mailbox = calloc(1, sizeof(message *));
+		mailboxinit = 1;
+	}
 	if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
