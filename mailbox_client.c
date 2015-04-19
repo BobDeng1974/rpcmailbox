@@ -118,7 +118,7 @@ mailbox_2(char *host)
 	if (result_4 == (char **) NULL) {
 		clnt_perror (clnt, "call failed");
 	} else {
-		printf("MesSAGES!!!!: %s\n", *result4);
+		printf("MesSAGES!!!!: %s\n", *result_4);
 	}
 	fflush(0);
 	
