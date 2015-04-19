@@ -473,12 +473,7 @@ int main(int argc, char * argv[])
 	delete_message(&o);
 	list_messages(&name2);
 	*/
-	
-	print_users_messages(&name1);
-	print_users_messages(&name2);
-	print_users_messages(&name3);
-	print_users_messages(&name4);	
-	
+
 	// test print user messages	
 	list_messages(&name1);
 	list_messages(&name2);

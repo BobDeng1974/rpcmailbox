@@ -222,24 +222,38 @@ struct listmessages *
 list_all_messages_1_svc(char* *argp, struct svc_req *rqstp)
 {
 	pthread_mutex_lock(&mutex);
-	
-	static struct listmessages result;
-	
-	str * username = &strdup(*argp);
 
-	printf("Printing %s's messages .. \n", *username);
+	static struct listmessages result = {0};
+	
+	printf("User: %s\n", *argp);
 
-	str * list;
+	str s = strdup(*argp);
+	str * username = &s;
+
+	printf("Printing %s's messages .. ", *username);
+
+	str * temp = calloc(1, sizeof(str*));
 
 	int k = 0;
 	int i;
 	for (i = 0; i < mailboxl; i++)
 	{
 		if (strcmp(*username, mailbox[i]->user) == 0)
-		{
-			list[k++] = strdup(mailbox[i]->user);
+		{	
+			temp[k] = calloc(1, sizeof(str));
+			temp[k++] = mailbox[i]->msg;	
 		}
 	}	
+
+	printf("there are %d of them:\n", k);
+
+	result.list = calloc(1, sizeof(str *));
+	for (i = 0; i < k; i++)
+	{
+		result.list[i] = calloc(1, sizeof(str));
+		result.list[i] = temp[i];
+		printf("\t%s\n", temp[i]);
+	}
 	
 	printf("\n");	
 
