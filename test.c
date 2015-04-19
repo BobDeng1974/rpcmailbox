@@ -31,11 +31,11 @@ const int USERMSGLIMIT = 20;
 
 /* Stores users and length of users array */
 static str * users;
-static int usersl = 0;
+int usersl = 0;
 
 /* Stores messages and length of messages array */
 static message ** mailbox;
-static int mailboxl = 0;
+int mailboxl = 0;
 
 
 
@@ -107,7 +107,7 @@ int add_to_users(str * username)
 	pthread_mutex_lock(&mutex);
 	
 	printf("Trying to add a user now");	
-	if (index_of_user(username) == -1)
+	if (index_of_user(username) == -1 || usersl == 0)
 	{
 		// make space, add the username in, and increment length of users
 		users[usersl] = calloc(1, sizeof(char*));
@@ -118,7 +118,7 @@ int add_to_users(str * username)
 		pthread_mutex_unlock(&mutex);
 		return 1;	
 	}
-	else 
+	else
 	{
 		printf(" but user '%s' already exists .. didn't add user\n", *username);
 		
@@ -341,7 +341,7 @@ int main(int argc, char * argv[])
 	//printf("%d\n", is_in("tim", users, &usersl));	
 	users = calloc(1, sizeof(str *));
 	mailbox = calloc(1, sizeof(message *));
-	
+
 	/* Create users */	
 	str name1 = calloc(8, sizeof(char));
 	strcpy(name1, "ishaan");
@@ -355,7 +355,8 @@ int main(int argc, char * argv[])
 	str name4 = calloc(8, sizeof(char));
 	strcpy(name4, "parul");
 
-
+	str copy = strdup(name1);
+	printf("%s -> %s\n", name1, copy);
 	
 	printf("%s - %p\n", name1, &name1);
 	//index_of_user(&name1);	
