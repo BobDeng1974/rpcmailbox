@@ -59,12 +59,12 @@ int index_of_user(str * username)
 	return -1;
 }
 
-/* Creates a message structure and returns it (returns 0 if theres a problem) */
+/* Creates a message structure and returns it (returns 0 if theres a problem) 
 message make_message(str * s, int msgid, str * user)
 {
 	
 
-}
+}*/
 
 
 /* Adds *s to the end of the message list and increments the mailboxl (length) */
@@ -81,7 +81,7 @@ int add_to_mailbox(message * m)
 	}
 	else
 	{
-		mailbox[mailboxl] = (message*) calloc(1, sizeof(message));
+		mailbox[mailboxl] = (message*) calloc(1, sizeof(message*));
 	}
 
 	// Add new message	
@@ -134,7 +134,7 @@ int add_to_users(str * username)
 
 
 /* Ends all services for the user - removes it from users array, deletes its messages */
-int remove_user_messages(str * username)
+void remove_user_messages(str * username)
 {
 	pthread_mutex_lock(&mutex);	
 
@@ -337,6 +337,39 @@ int print_users_messages(str * username)
 	pthread_mutex_unlock(&mutex);
 	return 1;
 }
+
+int list_messages(str * argp)
+{
+	pthread_mutex_lock(&mutex);
+
+	static struct listmessages result;
+	
+	printf("User: %s\n", *argp);
+
+	str s = strdup(*argp);
+	str * username = &s;
+
+	printf("Printing %s's messages .. \n", *username);
+
+	str * list;
+
+	int k = 0;
+	int i;
+	for (i = 0; i < mailboxl; i++)
+	{
+		if (strcmp(*username, mailbox[i]->user) == 0)
+		{
+			list[k++] = strdup(mailbox[i]->user);
+			printf("\t%s\n", list[k-1]);
+		}
+	}	
+	
+	printf("\n");	
+
+	pthread_mutex_unlock(&mutex);
+
+	return &result;
+}
 		
 	
 int main(int argc, char * argv[]) 
@@ -348,17 +381,13 @@ int main(int argc, char * argv[])
 	mailbox = calloc(1, sizeof(message *));
 
 	/* Create users */	
-	str name1 = calloc(8, sizeof(char));
-	strcpy(name1, "ishaan");
+	str name1 = strdup("ishaan\0");
 	
-	str name2 = calloc(8, sizeof(char));
-	strcpy(name2, "arya");
+	str name2 = strdup("arya\0");
 
-	str name3 = calloc(8, sizeof(char));
-	strcpy(name3, "samir");
+	str name3 = strdup("samir\0");
 	
-	str name4 = calloc(8, sizeof(char));
-	strcpy(name4, "parul");
+	str name4 = strdup("parul\0");
 
 	str copy = strdup(name1);
 	printf("%s -> %s\n", name1, copy);
@@ -386,18 +415,22 @@ int main(int argc, char * argv[])
 	add_to_users(&name2);
 	add_to_users(&name4);
 	
+	print_users_messages(&name1);
+	print_users_messages(&name2);
+	print_users_messages(&name3);
+	print_users_messages(&name4);
 
 	
 	printf("%s - %p\n", name1, &name1);
 
-	message m1 = {"ishaan", 0, "Hello there!"};
-	message m2 = {"ishaan", 1, "How have you been?"};
-	message m3 = {"arya", 2, "I've been great brotha. How about you?"};
-	message m4 = {"parul", 3, "Hello bebus"};
-	message m5 = {"ishaan", 4, "Hi Mom, hows it going?"};
-	message m6 = {"arya", 5, "hello ma"};
-	message m7 = {"samir", 6, "*video*"};
-	message m8 = {"arya", 7, "I'm Ishaan"};	
+	message m1 = {"ishaan\0", 0, "Hello there!\0"};
+	message m2 = {"ishaan\0", 1, "How have you been?\0"};
+	message m3 = {"arya\0", 2, "I've been great brotha. How about you?\0"};
+	message m4 = {"parul\0", 3, "Hello bebus\0"};
+	message m5 = {"ishaan\0", 4, "Hi Mom, hows it going?\0"};
+	message m6 = {"arya\0", 5, "hello ma\0"};
+	message m7 = {"samir\0", 6, "*video*\0"};
+	message m8 = {"arya\0", 7, "I'm Ishaan\0"};	
 	
 	printf("%s - %p\n", name1, &name1);
 	
@@ -416,18 +449,24 @@ int main(int argc, char * argv[])
 
 	print_mailbox();
 	
+	/*
 	// test delete message	
 	usermsgid o = {"arya", 7};
-	print_users_messages(&name2);
+	list_messages(&name2);
 	delete_message(&o);
-	print_users_messages(&name2);
-
+	list_messages(&name2);
+	*/
 	
-	// test print user messages	
 	print_users_messages(&name1);
 	print_users_messages(&name2);
 	print_users_messages(&name3);
 	print_users_messages(&name4);	
+	
+	// test print user messages	
+	list_messages(&name1);
+	list_messages(&name2);
+	list_messages(&name3);
+	list_messages(&name4);	
 
 	// test remove user messages
 	remove_user_messages(&name3);
@@ -440,4 +479,6 @@ int main(int argc, char * argv[])
 	usermsgid another = {"arya", 2};
 	str s1 = retrieve_message(&another);
 	printf("%s\n", s1);	
+
+	list_messages(&name2);
 } 
