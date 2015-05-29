@@ -49,7 +49,7 @@ start1_1_svc(char* *argp, struct svc_req *rqstp)
 		users = calloc(1, sizeof(str *));
 		usersinit = 1;
 	}
-	else if (index_of_user(username) == -1)
+	if (index_of_user(username) == -1)
 	{
 		// make space, add the username in, and increment length of users
 		users[usersl] = calloc(1, sizeof(char*));
@@ -174,7 +174,7 @@ insert_message1_1_svc(struct message *argp, struct svc_req *rqstp)
 		mailbox = calloc(1, sizeof(message *));
 		mailboxinit = 1;
 	}
-	else if (mailboxl + 1 > BOXMSGLIMIT)
+	if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
 	}

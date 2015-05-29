@@ -82,7 +82,7 @@ int add_to_mailbox(message * m)
 		mailbox = calloc(1, sizeof(message *));
 		mailboxinit = 1;
 	}
-	else if (mailboxl + 1 > BOXMSGLIMIT)
+	if (mailboxl + 1 > BOXMSGLIMIT)
 	{
 		mailboxpop(); 	// decremenets length of mailbox (mailboxl)
 	}
@@ -347,7 +347,7 @@ int print_users_messages(str * username)
 }
 
 /* Returns a listmessages of specified users mailbox */
-listmessages list_messages(str * argp)
+listmessages * list_messages(str * argp)
 {
 	pthread_mutex_lock(&mutex);
 
@@ -385,7 +385,7 @@ listmessages list_messages(str * argp)
 		result.list[i] = temp[i];
 		printf("\t%s\n", temp[i]);
 	}
-	results.list = k;
+	result.list = k;
 	
 	printf("\n");	
 
